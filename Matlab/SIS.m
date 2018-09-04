@@ -80,8 +80,8 @@ for l = 1 : loop
         S(t, l) = length(find(Nodes_SIS(t, :) == 0))/N;
     end
 
-    infected = sum(I, 2)/loop;
-    healthy = sum(I, 2)/loop; 
+    infected = sum(I, 2)./loop;
+    healthy = sum(S, 2)./loop; 
 end
 % ----------处理数据----------
 t1 = (1 : 1 : T);   % t1(1,50)且是线性增加
