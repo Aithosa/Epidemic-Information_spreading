@@ -44,11 +44,12 @@ for steps = 1:active_rounds
             i_nebor = find(A(active_node(i), :) == 1);    % 找到第i个有传染力节点的邻居
             victim = setdiff(i_nebor, active_node);    % 返回i_nebor有而active_node没有的邻居，应是排除已经感染的邻居
 
-            if steps == 1
-                old_active_node = [];
-            else
-                old_active_node = find((ic_capable(steps-1, :) == -1));    % 找到已经失效的节点
-            end
+            % if steps == 1
+            %     old_active_node = [];
+            % else
+            %     old_active_node = find((ic_capable(steps-1, :) == -1));    % 找到已经失效的节点
+            % end
+            old_active_node = find((ic_capable(steps, :) == -1));
             victim_final = setdiff(victim, old_active_node);    % 节点i真正可传染的邻居
             Num_victim_final = length(victim_final);    % 计算传染源数量
 
