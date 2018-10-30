@@ -10,14 +10,14 @@
 % I节点在知道信息后的康复加快率sigma_recover
 
 % ----------加载数据----------
-%clearvars -except A;
-%clear all;
-load BA_2000_3;	% 加载接触层邻接矩阵A
-load WS_2000_4_03? % 加载信息层邻接矩阵B
+% clearvars -except A;
+% clear all;
+% load BA_2000_3;	% 加载接触层邻接矩阵A
+% load WS_2000_4_03? % 加载信息层邻接矩阵B
 
 % ---------- 公共参数及初始化 ----------
-loop = 10;	% 蒙特卡洛模拟次数
-total_steps = 50;	% 总的时间步数
+loop = 50;	% 蒙特卡洛模拟次数
+total_steps = 100;	% 总的时间步数
 N = length(A);	% 网络节点?
 p = round(rand * N);	% ??始随机??出?个感染节点，四舍五入
 
@@ -67,7 +67,7 @@ for circles = 1 : loop
 
 		awareness_count(t) = awareness_count(t) + sum(Nodes_UAU(t, :));
 
-		if len_active_node > 0	% 如果还有节点具有传播能力
+		if Num_active_node > 0	% 如果还有节点具有传播能力
 			for i = 1 : Num_active_node	% 遍历这些具有传染力的节点
 
 				spread_rate_current = lambda;	% 这个暂时放这里，看能不能省掉
@@ -97,6 +97,7 @@ for circles = 1 : loop
 					forget_rate_current = forget_rate_current * sigma_forget;
 					if p2 >= forget_rate_current
 						Nodes_UAU(t+1, i) = 0;
+					end
 				end
 			end
 		end
@@ -136,7 +137,6 @@ for circles = 1 : loop
 
 						end
 					end
-				end
 
 				elseif Nodes_UAU(t, i) == 1
 					rate_temp = 1;
@@ -187,8 +187,8 @@ for circles = 1 : loop
 	end
 end
 
-infective_count(t) = infective_count(t) / loop;
-awareness_count(t) = awareness_count(t) / loop;
+infective_count = infective_count ./ loop;
+awareness_count = awareness_count ./ loop;
 
 % ---------- 数据可视? ----------
 t = (1 : 1 : total_steps);
