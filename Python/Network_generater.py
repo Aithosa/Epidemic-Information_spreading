@@ -25,13 +25,13 @@ WS = nx.random_graphs.watts_strogatz_graph(2000, 4, 0.3)
 
 
 # In[4]:
-BA = nx.random_graphs.barabasi_albert_graph(2000, 2)
+BA = nx.random_graphs.barabasi_albert_graph(2000, 3)
 # n - Number of nodes
 # m - Number of edges to attach from a new node to existing nodes
 
 
 # In[5]:
-BA_2000_2 = nx.to_numpy_matrix(BA)
+BA_2000_3 = nx.to_numpy_matrix(BA)
 WS_2000_4_03 = nx.to_numpy_matrix(WS)
 ER_2000_02 = nx.to_numpy_matrix(ER)
 
