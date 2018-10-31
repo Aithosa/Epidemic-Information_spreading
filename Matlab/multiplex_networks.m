@@ -16,7 +16,7 @@
 % load WS_2000_4_03? % 加载信息层邻接矩阵B
 
 % ---------- 公共参数及初始化 ----------
-loop = 50;	% 蒙特卡洛模拟次数
+loop = 10;	% 蒙特卡洛模拟次数
 total_steps = 100;	% 总的时间步数
 N = length(A);	% 网络节点?
 p = round(rand * N);	% ??始随机??出?个感染节点，四舍五入
@@ -191,7 +191,7 @@ infective_count = infective_count ./ loop;
 awareness_count = awareness_count ./ loop;
 
 % ---------- 数据可视? ----------
-t = (1 : 1 : total_steps);
+t = (1 : 1 : loop);
 
 % SIS统计
 plot(t,infective_count,'-o','color','y','linewidth',1.2);
