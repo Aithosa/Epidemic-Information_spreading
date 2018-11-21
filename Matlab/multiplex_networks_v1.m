@@ -141,11 +141,11 @@ for circles = 1 : loop
 								infect_rate_current = infect_rate_current * sigma_I;
 								rate_temp = rate_temp * (1 - infect_rate_current);
 
-								% ---------- S节点和已知信息的I节点接触后知晓 ----------
-								wake_rate = rand;
-								if wake_rate <= K
-									Nodes_UAU(t+1, i) = 1;
-								end
+								% % ---------- S节点和已知信息的I节点接触后知晓 ----------
+								% wake_rate = rand;
+								% if wake_rate <= K
+								% 	Nodes_UAU(t+1, i) = 1;
+								% end
 
 							end
 						end
@@ -172,11 +172,11 @@ for circles = 1 : loop
 				if x1 <= v1	% 这里有点问题? 可以问问师姐
 					Nodes_SIS(t+1, i) = 1;
 
-					% ---------- 感染节点信息上传(知晓) ----------
-					x2 = rand;
-					if  x2 <= aplha
-						Nodes_UAU(t+1, i) = 1;
-					end
+					% % ---------- 感染节点信息上传(知晓) ----------
+					% x2 = rand;
+					% if  x2 <= aplha
+					% 	Nodes_UAU(t+1, i) = 1;
+					% end
 				end
 
 			% ---------- SIS康复过程 ----------
