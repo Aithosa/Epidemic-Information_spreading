@@ -22,8 +22,8 @@ N = length(A);	% 网络节点数
 p = round(rand * N);	% 初始始随机选出一个感染节点，四舍五入
 
 % ---------- SIS参数及初始化 ----------
-bata = 0.2;	 % 感染概率
-mu = 0.5;	% 恢复概率
+bata = 0.8;	 % 感染概率
+mu = 0.1;	% 恢复概率
 
 Nodes_SIS = zeros(total_steps, N);   % N行代表时间步数，T列代表节点数，记录每步所有节点的状态
 Nodes_SIS(1, p) = 1;	% 第一步标出初始感染节点的位置
@@ -31,7 +31,7 @@ Nodes_SIS(1, p) = 1;	% 第一步标出初始感染节点的位置
 infective_count = zeros(1, total_steps);	% 每步感染节点数,用于最终统计
 
 % ---------- UAU参数及初始化 ----------
-lambda = 0.3;	% 传播率
+lambda = 0.6;	% 传播率
 delta = 0.15;	% 遗忘率
 
 Nodes_UAU = zeros(total_steps, N);	% 存储网络中每个节点的状态快照
