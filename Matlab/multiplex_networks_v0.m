@@ -10,19 +10,19 @@
 % I节点在知道信息后的康复加快率sigma_recover
 
 % ----------加载数据----------
-% clearvars -except A;
+% clearvars -except A B;
 % clear all;
 % load BA_2000_3;	% 加载接触层邻接矩阵A
 % load WS_2000_4_03 % 加载信息层邻接矩阵B
 
 % ---------- 公共参数及初始化 ----------
-loop = 100;	% 蒙特卡洛模拟次数
-total_steps = 50;	% 总的时间步数
+loop = 50;	% 蒙特卡洛模拟次数
+total_steps = 200;	% 总的时间步数
 N = length(A);	% 网络节点数
 p = round(rand * N);	% 初始始随机选出一个感染节点，四舍五入
 
 % ---------- SIS参数及初始化 ----------
-bata = 0.05;	 % 感染概率
+bata = 0.8;	 % 感染概率
 mu = 0.1;	% 恢复概率
 
 Nodes_SIS = zeros(total_steps, N);   % N行代表时间步数，T列代表节点数，记录每步所有节点的状态
