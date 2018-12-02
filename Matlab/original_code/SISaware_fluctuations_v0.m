@@ -2,7 +2,7 @@
 
 % ----------形参说明----------
 % 与ERSIawareness不同的是对传播次数平均了
-% v1.01 - 原代码优化
+% v1.01 - 原代码整理
 
 % N是节点个数
 % p是重连概率
@@ -14,19 +14,19 @@ tic;
 N = 2000;
 p = 0.0015;
 
-% 病毒传播参数
+ic1 = 0.1;    % 占整个节点数的比例
+
 beta = 0.2;    % 无意识的感染者感染无意识的易感者 / 原始感染率
 sigma_S = 0.3;    % sigma_S*beta为无意识的感染者感染有意识的易感者
 sigma_I = 0.6;    % sigma_I*beta为有意识的感染者感染无意识的易感者，sigma_S*sigma_I*beta为有意识的感染者感染有意识的易感者
 gama = 0.1;    % I(-)恢复概率 / 原始康复率
 epsilon = 1.5;    % epsilon*gama是I(+)恢复概率 / 康复加速因子
-% 信息传播参数
+
 alpha = 0.6;    % 意识传播概率(较小的)/ 信息传播率
 lambda=0.15;    % 意识退化概率 / 信息遗忘率？
 % omega = 0.3;    % 意识生成概率 / 信息上传率
-delta = 0.8    % 这里没有I(+)节点遗忘率衰减
+% 这里没有I(+)节点遗忘率衰减
 
-ic1 = 0.1;    % 占整个节点数的比例
 ic2 = 0.005;    % 占整个节点数的比例
 
 % alpha1 = 0.6;    % 意识传播概率(较大的)
@@ -87,44 +87,31 @@ for times = 1 : 50    % times有其他用处，但是这里可以重新定义为计次数用变量
     el = length(e0);    % i0邻居的个数
 
     % ----------初始传播恢复----------
-
+    % 3(1) 意识传播
     for i = 1 : el
-    	% 3(1) 意识传播
         if rand < alpha
             B(2, e0(i)) = 1;
         end
+    end
 
-        % 3(2) 疾病传播
+    % 3(2) 疾病传播
+    for i = 1 : el
         if (B(2, e0(i)) == 0) && (rand < sigma_I * beta)    % S(-)
             B(1, e0(i)) = 1;
         elseif (B(2, e0(i)) == 1) && (rand < sigma_S * sigma_I * beta)    % S(+)
             B(1, e0(i))=1;
         end
-
     end
-
-    % % 3(2) 疾病传播
-    % for i = 1 : el
-    %     if (B(2, e0(i)) == 0) && (rand < sigma_I * beta)    % S(-)
-    %         B(1, e0(i)) = 1;
-    %     elseif (B(2, e0(i)) == 1) && (rand < sigma_S * sigma_I * beta)    % S(+)
-    %         B(1, e0(i))=1;
-    %     end
-    % end
 
     % 3(3) 疾病恢复
     if  rand < epsilon * gama
         B(1, i0) = 0;
     end
 
-    % 3(4) 意识退化(i0) / 这里考虑I(+)的遗忘衰减
-    if (B(1, i0) == 1) && (rand < delta * lambda)    % S(-)
-        B(2, i0) = 0;
+    % 3(4) 意识退化(i0) / 这里没考虑I(+)的遗忘衰减
+    if rand < lambda
+        B(2, i0) = -0.5;    % 为什么遗忘后要标记为-0.5
     end
-
-    % if rand < lambda
-    %     B(2, i0) = 0;    % 为什么遗忘后要标记为-0.5
-    % end
 
     % ----------3(5) 统计节点数量----------
     n1 = 0;    % n1统计I(-)的数量
@@ -168,7 +155,6 @@ for times = 1 : 50    % times有其他用处，但是这里可以重新定义为计次数用变量
 %         lambda=0.2;
 %         epsilon=3;
 %     end
-
     %4
 
     % ----------未知标记位----------
@@ -189,7 +175,6 @@ for times = 1 : 50    % times有其他用处，但是这里可以重新定义为计次数用变量
             e21 = [e21, e];    % e21存储当前总共可传播信息的节点编号
         end
         e21 = unique(e21);    % 将重复的邻居删除
-
         for i = 1 : length(e21)
             if (B(2, e21(i)) == 0) && (rand < alpha)    % 以alpha的概率传播
                 B(2, e21(i)) = 1;
@@ -204,11 +189,11 @@ for times = 1 : 50    % times有其他用处，但是这里可以重新定义为计次数用变量
         % end
 
         % ----------4(21) 将意识状态为-0.5的节点的意识状态改成0----------
-        % for i = 1 : n
-        %     if B(2, i) == -0.5
-        %         B(2, i) = 0;
-        %     end
-        % end
+        for i = 1 : n
+            if B(2, i) == -0.5
+                B(2, i) = 0;
+            end
+        end
 
         % ----------4(3) 疾病的传播统计----------
         e22 = find(B(1, :) == 1);    % 找到B中疾病状态为I的节点
@@ -231,10 +216,10 @@ for times = 1 : 50    % times有其他用处，但是这里可以重新定义为计次数用变量
         end
 
         for i = 1 : length(e23nei)
-            if (B(1, e23nei(i)) == 0 && B(2, e23nei(i)) <= 0) && (rand < beta)  % a S(-)
-                B(1, e23nei(i)) = 1;
-            elseif (B(1, e23nei(i)) == 0 && B(2, e23nei(i)) > 0) && (rand < sigma_S * beta)  % b S(+)
-                B(1, e23nei(i)) = 1;
+            if (B(1, e23nei(i)) == 0 && B(2, e23nei(i)) <= 0) && (rand < beta)  % a
+                B(1, e23nei(i)) = 2;
+            elseif (B(1, e23nei(i)) == 0 && B(2, e23nei(i)) > 0) && (rand < sigma_S * beta)  % b
+                B(1, e23nei(i)) = 2;
             end
         end
 
@@ -244,18 +229,17 @@ for times = 1 : 50    % times有其他用处，但是这里可以重新定义为计次数用变量
             ee = adj{e24(i)};
             e24nei = [e24nei, ee];    % 找到所有I(+)的邻居
         end
-
         for i = 1 : length(e24nei)
-            if  (B(1, e24nei(i)) == 0 && B(2, e24nei(i)) <= 0) && (rand < sigma_I * beta)  % a S(-)
-                B(1, e24nei(i)) = 1;
-            elseif (B(1, e24nei(i)) == 0 && B(2, e24nei(i)) > 0) && (rand < sigma_S * sigma_I * beta)  % b S(+)
-                B(1, e24nei(i)) = 1;
+            if  (B(1, e24nei(i)) == 0 && B(2, e24nei(i)) <= 0) && (rand < sigma_I * beta)  % a
+                B(1, e24nei(i)) = 2;
+            elseif (B(1, e24nei(i)) == 0 && B(2, e24nei(i)) > 0) && (rand < sigma_S * sigma_I * beta)  % b
+                B(1, e24nei(i)) = 2;
             end
         end
 
         % ----------4(4) 疾病恢复----------
         for i = 1 : n
-            if B(1, i) == 1 && B(2, i)==0 && rand < gama    % I(-)的恢复
+            if (B(1, i) == 1 && B(2, i)==0) && rand < gama    % I(-)的恢复
                 B(1, i) = 0;
             elseif B(1, i) == 1 && B(2, i) > 0 && (rand < epsilon * gama)   % I(+)的恢复
                 B(1, i) = 0;
@@ -265,26 +249,24 @@ for times = 1 : 50    % times有其他用处，但是这里可以重新定义为计次数用变量
         % ----------4(5) 意识的退化----------
         ea = find(B(2, :) == 1);      % 找到X(+)
         for i = 1 : length(ea)
-            if (B(1, ea(i)) == 1) && rand < delta * lambda
-                B(2, ea(i)) = 0;
-            elseif (B(1, ea(i)) == 0) && rand < lambda
-            	B(2, ea(i)) = 0;                	
+            if rand < lambda
+                B(2, ea(i)) = -0.5;
             end
         end
 
         % ----------4(6) 将意识状态为0.5的节点的意识状态改成1----------
-        % for i = 1:n
-        %     if  B(2, i) == 0.5
-        %          B(2, i) = 1;
-        %     end
-        % end
+        for i = 1:n
+            if  B(2, i) == 0.5
+                 B(2, i) = 1;
+            end
+        end
 
         % ----------4(7) 将意识状态为2的节点的意识状态改成1----------
-        % for i = 1 : n
-        %     if B(1, i) == 2
-        %         B(1, i) = 1;
-        %     end
-        % end
+        for i = 1 : n
+            if B(1, i) == 2
+                B(1, i) = 1;
+            end
+        end
 
         % ----------4(8) 统计各类节点数量----------
         n1 = 0;  % n1统计I(-)的数量
@@ -319,62 +301,62 @@ for times = 1 : 50    % times有其他用处，但是这里可以重新定义为计次数用变量
 
         % ----------判断下一步意识传播概率的值----------
 
-    %     % 意识增强
-    %     % 具体效果:
-    %     if nn > ic1 * N    % 如果当前网络染病节点数多于ic1*N
-    %         if flag1 == 0
-    %             count1 = count1 + 1;
-    %             if rem(count1, 2) == 1    % rem(x,y):求整除x/y的余数，如果count1是奇数
-    %                 % ----------alpha增加巨大，sigma_S减小----------
-    %                 % 具体效果:
-    %                 alpha = 0.9;    % 信息传播率
-    %                 sigma_S = 0.1;
-    %                 sigma_I = 0.1;
-    %                 lambda = 0.1;    % 信息遗忘率
-    %                 epsilon = 2.5;    % 康复加速因子
-    %             elseif  rem(count1, 2) == 0    % 如果count1是偶数
-    %                 % ----------alpha增加一般，sigma_S增加，sigma_I增加，epsilon减小----------
-    %                 % 具体效果:
-    %                 alpha = 0.6;    % 信息传播率
-    %                 sigma_S = 0.2;
-    %                 sigma_I = 0.25;
-    %                 lambda = 0.1;    % 信息遗忘率
-    %                 epsilon = 1.5;    % 康复加速因子
-    %             end
-    %         end
-    %         flag1 = 1;
-    %     else    % 如果当前网络染病节点数少于ic1*N
-    %         flag1 = 0;    % 等待下次当前网络染病节点数多于ic1*N，进行修改参数
-    %     end
+        % 意识增强
+        % 具体效果:
+        if nn > ic1 * N    % 如果当前网络染病节点数多于ic1*N
+            if flag1 == 0
+                count1 = count1 + 1;
+                if rem(count1, 2) == 1    % rem(x,y):求整除x/y的余数，如果count1是奇数
+                    % ----------alpha增加巨大，sigma_S减小----------
+                    % 具体效果:
+                    alpha = 0.9;    % 信息传播率
+                    sigma_S = 0.1;
+                    sigma_I = 0.1;
+                    lambda = 0.1;    % 信息遗忘率
+                    epsilon = 2.5;    % 康复加速因子
+                elseif  rem(count1, 2) == 0    % 如果count1是偶数
+                    % ----------alpha增加一般，sigma_S增加，sigma_I增加，epsilon减小----------
+                    % 具体效果:
+                    alpha = 0.6;    % 信息传播率
+                    sigma_S = 0.2;
+                    sigma_I = 0.25;
+                    lambda = 0.1;    % 信息遗忘率
+                    epsilon = 1.5;    % 康复加速因子
+                end
+            end
+            flag1 = 1;
+        else    % 如果当前网络染病节点数少于ic1*N
+            flag1 = 0;    % 等待下次当前网络染病节点数多于ic1*N，进行修改参数
+        end
         
-    %     % 意识减弱
-    %     % 具体效果:
-    %     if nn <= ic2 * N    % 如果当前网络染病节点数少于ic2*N
-    %         if flag2 == 0
-    %             count2 = count2 + 1;
-    %             % ----------为什么要用count1----------
-    %             if mod(count1, 2) == 1    % 如果count1是奇数
-    %                 % ----------sigma_I增加，lambda增加，epsilon减小----------
-    %                 % 具体效果:
-    %                 alpha = 0.3;
-    %                 sigma_S = 0.15;
-    %                 sigma_I = 0.3;
-    %                 lambda = 0.15;
-    %                 epsilon = 1.5;
-    %             elseif mod(count1, 2) == 0    % 如果count1是偶数
-    %                 % ----------alpha减小，sigma_S增加巨大，sigma_I增加巨大，epsilon减小巨大----------
-    %                 % 具体效果:
-    %                 alpha = 0.2;
-    %                 sigma_S = 0.85;
-    %                 sigma_I = 0.95;
-    %                 lambda = 0.1;
-    %                 epsilon = 1.05;
-    %             end
-    %         end
-    %         flag2 = 1;
-    %     else    % 如果当前网络染病节点数多于ic2*N
-    %         flag2 = 0;    % 等待下次当前网络染病节点数少于ic2*N，进行修改参数
-    %     end        
+        % 意识减弱
+        % 具体效果:
+        if nn <= ic2 * N    % 如果当前网络染病节点数少于ic2*N
+            if flag2 == 0
+                count2 = count2 + 1;
+                % ----------为什么要用count1----------
+                if mod(count1, 2) == 1    % 如果count1是奇数
+                    % ----------sigma_I增加，lambda增加，epsilon减小----------
+                    % 具体效果:
+                    alpha = 0.3;
+                    sigma_S = 0.15;
+                    sigma_I = 0.3;
+                    lambda = 0.15;
+                    epsilon = 1.5;
+                elseif mod(count1, 2) == 0    % 如果count1是偶数
+                    % ----------alpha减小，sigma_S增加巨大，sigma_I增加巨大，epsilon减小巨大----------
+                    % 具体效果:
+                    alpha = 0.2;
+                    sigma_S = 0.85;
+                    sigma_I = 0.95;
+                    lambda = 0.1;
+                    epsilon = 1.05;
+                end
+            end
+            flag2 = 1;
+        else    % 如果当前网络染病节点数多于ic2*N
+            flag2 = 0;    % 等待下次当前网络染病节点数少于ic2*N，进行修改参数
+        end        
     end
 
     toc;
