@@ -10,19 +10,19 @@
 % I节点在知道信息后的康复加快率sigma_recover
 
 % ----------加载数据----------
-% clearvars -except A;
+% clearvars -except A B;
 % clear all;
 % load BA_2000_3;	% 加载接触层邻接矩阵A
 % load WS_2000_4_03 % 加载信息层邻接矩阵B
 
 % ---------- 公共参数及初始化 ----------
-loop = 100;	% 蒙特卡洛模拟次数
+loop = 10;	% 蒙特卡洛模拟次数
 total_steps = 50;	% 总的时间步数
 N = length(A);	% 网络节点数
 p = round(rand * N);	% 初始始随机选出一个感染节点，四舍五入
 
 % ---------- SIS参数及初始化 ----------
-bata = 0.8;	 % 感染概率
+bata = 0.5;	 % 感染概率
 mu = 0.1;	% 恢复概率
 
 Nodes_SIS = zeros(total_steps, N);   % N行代表时间步数，T列代表节点数，记录每步所有节点的状态
@@ -45,9 +45,13 @@ K = 0.3;	% S节点在不知情时接触I节点后知道信息的概率
 sigma_forget = 0.8;	% 已知信息I节点信息遗忘率衰减
 % sigma_infect = 0.3;	% 已知信息S节点感染率衰减
 sigma_I = 0.6;	% I节点在知道信息后的感染率衰减
+% sigma_I = 1;	% I节点在知道信息后的感染率衰减
 sigma_S = 0.3;	% S节点在知道信息后的防御系数/感染率衰减
 sigma_recover = 1.3;	% I节点在知道信息后的康复加快率
 
+vaild = 0;
+
+% ---------- baseline ----------
 % aplha = 0;	% 信息上传率
 % K = 0;	% S节点在不知情时接触I节点后知道信息的概率
 % sigma_forget = 1;	% 已知信息I节点信息遗忘率衰减
@@ -56,13 +60,17 @@ sigma_recover = 1.3;	% I节点在知道信息后的康复加快率
 % sigma_S = 1;	% S节点在知道信息后的防御系数/感染率衰减
 % sigma_recover = 1;	% I节点在知道信息后的康复加快率
 
+tic;
+
 % ---------- 蒙特卡罗次数 ----------
 for circles = 1 : loop
+    
+    circles
 
 	% ---------- 时间演化 ----------
 	for t = 1 : total_steps
 
-		% if t == 3
+		% if t == 2
 		% 	return
 		% end
 
@@ -76,7 +84,7 @@ for circles = 1 : loop
 		% 统计当前已知信息节点数
 		awareness_count(t) = awareness_count(t) + sum(Nodes_UAU(t, :));
 
-		if Num_active_node > 0	% 如果还有节点具有传播能力
+		% if Num_active_node > 0	% 如果还有节点具有传播能力
 			for i = 1 : Num_active_node	% 遍历这些具有传染力的节点
 
 				spread_rate_current = lambda;	% 这个暂时放这里，看能不能省掉
@@ -109,7 +117,7 @@ for circles = 1 : loop
 					end
 				end
 			end
-		end
+		% end
 
 		% ---------- SIS演化 ----------
 
@@ -128,7 +136,7 @@ for circles = 1 : loop
 				infect_rate_current = bata;	% 当前临时感染率
 				rate_temp = 1;	% 用于计算感染率
 
-				if Num_neighbor_infective ~= 0
+				% if Num_neighbor_infective ~= 0
 
 					% ---------- SIS感染率改变规则 ----------
 					if Nodes_UAU(t, i) == 0
@@ -164,7 +172,7 @@ for circles = 1 : loop
 							end
 						end
 					end
-				end
+				% end
 
 				%  ---------- SIS感染过程 ----------
 				v1 = 1 - rate_temp;    % 这是最终计算的感染率？？？
@@ -197,7 +205,10 @@ for circles = 1 : loop
 				end
 			end
 		end
-	end
+    end
+    
+    toc
+    
 end
 
 infective_count = infective_count ./ loop;
