@@ -11,6 +11,7 @@
 
 % 本程序根据原论文程序做出修改，力求接近源程序
 % 已修复V0版本的问题
+% SIS传播两种方式产生的图线会有略微差异，应该不是bug，可以生成针对S和I的随机数队列进行检验
 
 % ---------- 加载数据 ----------
 % clearvars -except A B;
@@ -19,13 +20,14 @@
 % load WS_2000_4_03 % 加载信息层邻接矩阵B
 
 % ---------- 公共参数及初始化 ----------
-loop = 10;  % 蒙特卡洛模拟次数
+loop = 50;  % 蒙特卡洛模拟次数
 % valid_loop = 0;
 time_steps = 200;   % 总的时间步数
 N = length(A);  % 网络节点数
 % p = round(rand * N);  % 初始始随机选出一个感染节点，四舍五入
 % p = randi([1 N]);    % randi 生成均匀分布的伪随机整数
-% rng(5)
+
+rng(7)
 
 % ---------- 存储容器 ----------
 % Node_states = zeros(2, N);    % 记录每个节点的状态，第一行是疾病状态，第二行是信息状态
@@ -48,7 +50,6 @@ lambda = 0.6;   % 传播率
 delta = 0.1;    % 遗忘率
 
 % Nodes_UAU(1, p) = 1;    % 随机初始化一个节点使其处于感染状态，当前可感染状态节点的快照
-% awareness_count(1) = 1;
 
 % ---------- 其他参数 ----------
 % aplha = 0.8;  % 信息上传率，暂不考虑
@@ -58,6 +59,7 @@ sigma_forget = 0.8; % 已知信息I节点信息遗忘率衰减
 sigma_I = 0.6;  % I节点在知道信息后的感染率衰减
 sigma_S = 0.3;  % S节点在知道信息后的防御系数/感染率衰减
 sigma_recover = 1.5;    % I节点在知道信息后的康复加快率
+
 
 tic;
 
@@ -126,9 +128,9 @@ for circles = 1 : loop
             end
         % end
 
-        % ---------- SIS演化 ----------
+        % % ---------- SIS演化 ----------
 
-        % infective_count(t) = infective_count(t) + sum(Nodes_SIS(t, :));
+        % % infective_count(t) = infective_count(t) + sum(Nodes_SIS(t, :));
 
         % ---------- SIS感染过程 - 方法1 ----------
         susceptible_nodes = find((Nodes_SIS(t, :) == 0));
