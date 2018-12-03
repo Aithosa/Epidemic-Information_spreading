@@ -10,6 +10,7 @@
 % I节点在知道信息后的康复加快率sigma_recover
 
 % 本程序根据原论文程序做出修改，力求接近源程序
+% 已修复V0版本的问题
 
 % ---------- 加载数据 ----------
 % clearvars -except A B;
@@ -24,7 +25,7 @@ time_steps = 200;   % 总的时间步数
 N = length(A);  % 网络节点数
 % p = round(rand * N);  % 初始始随机选出一个感染节点，四舍五入
 % p = randi([1 N]);    % randi 生成均匀分布的伪随机整数
-rng(5)
+% rng(5)
 
 % ---------- 存储容器 ----------
 % Node_states = zeros(2, N);    % 记录每个节点的状态，第一行是疾病状态，第二行是信息状态
@@ -76,6 +77,10 @@ for circles = 1 : loop
     % ---------- 时间演化 ----------
     for t = 1 : time_steps
 
+		% if t == 2
+		% 	return
+		% end
+
         infective_count(circles, t) = sum(Nodes_SIS(t, :));
         awareness_count(circles, t) = sum(Nodes_UAU(t, :));
 
@@ -108,14 +113,14 @@ for circles = 1 : loop
 
                 % ---------- UAU遗忘过程 ----------
                 p2 = rand;
-                if Nodes_SIS(i) == 0
+                if Nodes_SIS(t, active_node(i)) == 0
                     if p2 <= forget_rate_current
-                        Nodes_UAU(t+1, i) = 0;  % 这个节点遗忘
+                        Nodes_UAU(t+1, active_node(i)) = 0;  % 这个节点遗忘
                     end
-                elseif Nodes_SIS(i) == 1
-                    forget_rate_current = forget_rate_current * sigma_forget;
-                    if p2 <= forget_rate_current
-                        Nodes_UAU(t+1, i) = 0;
+                elseif Nodes_SIS(t, active_node(i)) == 1
+                    % forget_rate_current = forget_rate_current * sigma_forget;
+                    if p2 <= forget_rate_current * sigma_forget
+                        Nodes_UAU(t+1, active_node(i)) = 0;
                     end
                 end
             end
@@ -136,7 +141,7 @@ for circles = 1 : loop
             neighbor_infective = intersect(infective_nodes, neighbor_total);    % 取交集，真正可以感染它的邻居
             Num_neighbor_infective = length(neighbor_infective);
             
-            infect_rate_current = bata; % 当前临时感染率
+            % infect_rate_current = bata; % 当前临时感染率
             rate_temp = 1;  % 用于计算感染率
 
             % if Num_neighbor_infective ~= 0    % 如果还有感染节点
@@ -144,13 +149,15 @@ for circles = 1 : loop
                 % ---------- SIS感染率改变规则 ----------
                 if Nodes_UAU(t, susceptible_nodes(i)) == 0    % S(-)节点
 
+                	infect_rate_current = bata; % 当前临时感染率
+
                     for j = 1 : Num_neighbor_infective
 
                         if Nodes_UAU(t, neighbor_infective(j)) == 0
                             rate_temp = rate_temp * (1 - infect_rate_current);
                         elseif Nodes_UAU(t, neighbor_infective(j)) == 1
-                            infect_rate_current = infect_rate_current * sigma_I;
-                            rate_temp = rate_temp * (1 - infect_rate_current);
+                            % infect_rate_current = infect_rate_current * sigma_I;
+                            rate_temp = rate_temp * (1 - infect_rate_current * sigma_I);
 
                             % % ---------- S节点和已知信息的I节点接触后知晓 ----------
                             % wake_rate = rand;
@@ -170,8 +177,8 @@ for circles = 1 : loop
                         if Nodes_UAU(t, neighbor_infective(j)) == 0
                             rate_temp = rate_temp * (1 - infect_rate_current);
                         elseif Nodes_UAU(t, neighbor_infective(j)) == 1
-                            infect_rate_current = infect_rate_current * sigma_I;
-                            rate_temp = rate_temp * (1 - infect_rate_current);
+                            % infect_rate_current = infect_rate_current * sigma_I;
+                            rate_temp = rate_temp * (1 - infect_rate_current * sigma_I);
                         end
                     end
                 end
@@ -196,22 +203,24 @@ for circles = 1 : loop
         Num_infective_nodes = length(infective_nodes);
 
         recover_rate_current = mu;
-        x2 = rand;
 
         for k = 1 : Num_infective_nodes
+
+	        x2 = rand;
+
             if Nodes_UAU(t, infective_nodes(k)) == 0
                 if x2 <= recover_rate_current
                     Nodes_SIS(t+1, infective_nodes(k)) = 0;
                 end
             elseif Nodes_UAU(t, infective_nodes(k)) == 1
-                recover_rate_current = mu * sigma_recover;
-                if x2 <= recover_rate_current
+                % recover_rate_current = mu * sigma_recover;
+                if x2 <= recover_rate_current * sigma_recover
                     Nodes_SIS(t+1, infective_nodes(k)) = 0;
                 end
             end
         end
 
-        % ---------- SIS感染过程 - 方法2 ----------
+        % % ---------- SIS感染过程 - 方法2 ----------
         % for i = 1 : N % 考察遍每个节点
 
         %     % ---------- SIS感染过程 ----------
@@ -222,7 +231,7 @@ for circles = 1 : loop
         %         neighbor_infective = intersect(infective_nodes, neighbor_total);    % 取交集，真正可以感染它的邻居
         %         Num_neighbor_infective = length(neighbor_infective);
 
-        %         infect_rate_current = bata; % 当前临时感染率
+        %         % infect_rate_current = bata; % 当前临时感染率
         %         rate_temp = 1;  % 用于计算感染率
 
         %         % if Num_neighbor_infective ~= 0    % 如果还有感染节点
@@ -230,13 +239,15 @@ for circles = 1 : loop
         %             % ---------- SIS感染率改变规则 ----------
         %             if Nodes_UAU(t, i) == 0    % S(-)节点
 
+        %             	infect_rate_current = bata; % 当前临时感染率
+
         %                 for j = 1 : Num_neighbor_infective
 
         %                     if Nodes_UAU(t, neighbor_infective(j)) == 0
         %                       rate_temp = rate_temp * (1 - infect_rate_current);
         %                     elseif Nodes_UAU(t, neighbor_infective(j)) == 1
-        %                       infect_rate_current = infect_rate_current * sigma_I;
-        %                       rate_temp = rate_temp * (1 - infect_rate_current);
+        %                       % infect_rate_current = infect_rate_current * sigma_I;
+        %                       rate_temp = rate_temp * (1 - infect_rate_current * sigma_I);
 
         %                       % % ---------- S节点和已知信息的I节点接触后知晓 ----------
         %                       % wake_rate = rand;
@@ -255,8 +266,8 @@ for circles = 1 : loop
         %                     if Nodes_UAU(t, neighbor_infective(j)) == 0
         %                       rate_temp = rate_temp * (1 - infect_rate_current);
         %                     elseif Nodes_UAU(t, neighbor_infective(j)) == 1
-        %                       infect_rate_current = infect_rate_current * sigma_I;
-        %                       rate_temp = rate_temp * (1 - infect_rate_current);
+        %                       % infect_rate_current = infect_rate_current * sigma_I;
+        %                       rate_temp = rate_temp * (1 - infect_rate_current * sigma_I);
         %                     end
         %                 end
         %             end
@@ -286,8 +297,8 @@ for circles = 1 : loop
         %                 Nodes_SIS(t+1, i) = 0;
         %             end
         %         elseif Nodes_UAU(t, i) == 1
-        %             recover_rate_current = mu * sigma_recover;
-        %             if x2 <= recover_rate_current
+        %             % recover_rate_current = mu * sigma_recover;
+        %             if x2 <= recover_rate_current * sigma_recover
         %                 Nodes_SIS(t+1, i) = 0;
         %             end
         %         end
