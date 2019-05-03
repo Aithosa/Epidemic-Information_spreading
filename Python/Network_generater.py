@@ -46,14 +46,14 @@ def AddRandomEdge(networkMatrix, edgesToAdd):
         while(networkMatrix[p1,p2] == 1):
             p1 = random.randint(0, N-1)
             p2 = random.randint(0, N-1)
-        networkMatrix[p1,p2] == 1
-        networkMatrix[p2,p1] == 1
+        networkMatrix[p1,p2] = 1
+        networkMatrix[p2,p1] = 1
     return networkMatrix
 
 # In[7]:
-BA_2000_3_add_400 = AddRandomEdge(BA_2000_3, 400)
-WS_2000_4_03_add_400 = AddRandomEdge(WS_2000_4_03, 400)
-ER_2000_02_add_400 = AddRandomEdge(ER_2000_02, 400)
+BA_2000_3_add_400_edges = AddRandomEdge(BA_2000_3, 400)
+WS_2000_4_03_add_400_edges = AddRandomEdge(WS_2000_4_03, 400)
+ER_2000_02_add_400_edges = AddRandomEdge(ER_2000_02, 400)
 
 # In[8]:
 np.savetxt('./data/BA_2000_3.csv', BA_2000_3, fmt = '%d', delimiter = ',')
@@ -61,6 +61,6 @@ np.savetxt('./data/WS_2000_4_03.csv', WS_2000_4_03, fmt = '%d', delimiter = ',')
 np.savetxt('./data/ER_2000_0003.csv', ER_2000_02, fmt = '%d', delimiter = ',')
 
 # In[9]:
-np.savetxt('./data/BA_2000_3_add_400.csv', BA_2000_3_add_400, fmt = '%d', delimiter = ',')
-np.savetxt('./data/WS_2000_4_03_add_400.csv', WS_2000_4_03_add_400, fmt = '%d', delimiter = ',')
-np.savetxt('./data/ER_2000_02_add_400.csv', ER_2000_02_add_400, fmt = '%d', delimiter = ',')
+np.savetxt('./data/BA_2000_3_add_400_edges.csv', BA_2000_3_add_400_edges, fmt = '%d', delimiter = ',')
+np.savetxt('./data/WS_2000_4_03_add_400_edges.csv', WS_2000_4_03_add_400_edges, fmt = '%d', delimiter = ',')
+np.savetxt('./data/ER_2000_02_add_400_edges.csv', ER_2000_02_add_400_edges, fmt = '%d', delimiter = ',')
