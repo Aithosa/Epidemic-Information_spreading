@@ -6,13 +6,13 @@
 # In[1]:
 import networkx as nx
 
-import pandas as pd
+# import pandas as pd
 import numpy as np
 
 import random
 
-import matplotlib.pyplot as plt
-import seaborn as sns
+# import matplotlib.pyplot as plt
+# import seaborn as sns
 
 
 # In[2]:
@@ -47,6 +47,7 @@ def AddRandomEdge(networkMatrix, edgesToAdd):
             p1 = random.randint(0, N-1)
             p2 = random.randint(0, N-1)
         networkMatrix[p1,p2] == 1
+        networkMatrix[p2,p1] == 1
     return networkMatrix
 
 # In[7]:

@@ -11,4 +11,5 @@ for i = 1:edges_add
         p2 = round(rand * N);
     end
     A(p1, p2) = 1;
+    A(p2, p1) = 1;
 end
